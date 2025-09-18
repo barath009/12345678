@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
-import Navigation from "@/components/ui/navigation";
 
-
-// ⚠️ Store your Gemini API key in .env file like:
-// VITE_GEMINI_API_KEY=your_api_key_here
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 const ChatAssistant = () => {
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "Hello 👋, I’m your farming assistant . How can I help you today?" },
+    { sender: "bot", text: "Hello 👋, I’m your farming assistant. How can I help you today?" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,35 +13,30 @@ const ChatAssistant = () => {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // Add user message
     const newMessages = [...messages, { sender: "user", text: input }];
     setMessages(newMessages);
     setInput("");
     setLoading(true);
 
     try {
-      // Call Gemini API
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [
-              { role: "user", parts: [{ text: input }] }
-            ],
+            contents: [{ role: "user", parts: [{ text: input }] }],
           }),
         }
       );
 
       const data = await response.json();
+      console.log("Gemini response:", data);
+
       const aiMessage =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ??
         "⚠️ No response from Gemini.";
 
-      // Add bot reply
       setMessages((prev) => [...prev, { sender: "bot", text: aiMessage }]);
     } catch (error) {
       console.error("Error calling Gemini:", error);
@@ -59,14 +50,13 @@ const ChatAssistant = () => {
   };
 
   return (
-    
     <div className="flex flex-col h-screen bg-gray-100">
       {/* Header */}
       <div className="p-4 bg-green-600 text-white font-bold text-lg">
         AGRI ASSISTANT
       </div>
 
-      {/* Messages area */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg, idx) => (
           <div
@@ -74,13 +64,12 @@ const ChatAssistant = () => {
             className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-            className={`px-50 py-200 rounded-2xl max-w-md shadow ml-4 ${
-            msg.sender === "user"
-            ? "bg-blue-600 text-white rounded-br-none"
-            : "bg-white text-gray-800 rounded-bl-none"
-        }`}
-        >
-
+              className={`px-4 py-2 rounded-2xl max-w-md shadow ${
+                msg.sender === "user"
+                  ? "bg-blue-600 text-white rounded-br-none"
+                  : "bg-white text-gray-800 rounded-bl-none"
+              }`}
+            >
               {msg.text}
             </div>
           </div>
@@ -94,7 +83,7 @@ const ChatAssistant = () => {
         )}
       </div>
 
-      {/* Input area */}
+      {/* Input */}
       <div className="p-3 bg-white border-t flex items-center">
         <input
           type="text"
@@ -117,4 +106,3 @@ const ChatAssistant = () => {
 };
 
 export default ChatAssistant;
-d
